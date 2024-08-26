@@ -1,34 +1,27 @@
+// src/routes/v1/auth.js
+
 const express = require('express');
 const validate = require('../../middlewares/validate');
-const authValidation = require('../../validations/auth.validation');
-const authController = require('../../controllers/auth.controller');
+const authController = require('../../modules/auth/controllers');
+const authValidation = require('../../modules/auth/user.validation');
 
 const router = express.Router();
 
-router.post('/register', validate(authValidation.register), authController.register);
+router.post('/signup', validate(authValidation.signup), authController.signup);
 
-router.post('/signup', validate(authValidation.signup), authController.singup);
+router.post('/verify-otp', validate(authValidation.otpVerification), authController.verifyOtpCode);
 
 router.post('/login', validate(authValidation.login), authController.login);
 
-router.post('/logout', validate(authValidation.logout), authController.logout);
-
-router.post('/getCurrentUser', authController.getCurrentUser);
-
 module.exports = router;
 
-/**
- * @swagger
- * tags:
- *   name: Auth
- *   description: Authentication
- */
 
 /**
  * @swagger
- * /auth/register:
+ * /auth/signup:
  *   post:
- *     summary: Register as user
+ *     summary: Register a new user
+ *     description: Register a new user with email, password, and OTP verification.
  *     tags: [Auth]
  *     requestBody:
  *       required: true
@@ -36,29 +29,53 @@ module.exports = router;
  *         application/json:
  *           schema:
  *             type: object
- *             required:
- *               - name
- *               - email
- *               - password
  *             properties:
- *               name:
- *                 type: string
  *               email:
  *                 type: string
- *                 format: email
- *                 description: must be unique
+ *                 example: user@example.com
  *               password:
  *                 type: string
- *                 format: password
- *                 minLength: 8
- *                 description: At least one number and one letter
- *             example:
- *               name: fake name
- *               email: fake@example.com
- *               password: password1
+ *                 example: password123
+ *               name:
+ *                 type: string
+ *                 example: John Doe
  *     responses:
- *       "201":
- *         description: Created
+ *       201:
+ *         description: User registered successfully. OTP sent to your email.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 user:
+ *                   $ref: '#/components/schemas/User'
+ *       400:
+ *         description: Bad request
+ */
+
+/**
+ * @swagger
+ * /auth/verify-otp:
+ *   post:
+ *     summary: Verify OTP for user registration
+ *     description: Verify the OTP sent to the user's email during registration.
+ *     tags: [Auth]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               email:
+ *                 type: string
+ *                 example: user@example.com
+ *               otp:
+ *                 type: string
+ *                 example: 123456
+ *     responses:
+ *       200:
+ *         description: OTP verified successfully.
  *         content:
  *           application/json:
  *             schema:
@@ -67,16 +84,20 @@ module.exports = router;
  *                 user:
  *                   $ref: '#/components/schemas/User'
  *                 tokens:
- *                   $ref: '#/components/schemas/AuthTokens'
- *       "400":
- *         $ref: '#/components/responses/DuplicateEmail'
+ *                   $ref: '#/components/schemas/Tokens'
+ *       400:
+ *         description: Invalid or expired OTP
+ *       404:
+ *         description: User not found
  */
+
 
 /**
  * @swagger
  * /auth/login:
  *   post:
- *     summary: Login
+ *     summary: Log in a user
+ *     description: Authenticate a user using their email and password. Returns user details and tokens if successful.
  *     tags: [Auth]
  *     requestBody:
  *       required: true
@@ -84,22 +105,16 @@ module.exports = router;
  *         application/json:
  *           schema:
  *             type: object
- *             required:
- *               - email
- *               - password
  *             properties:
  *               email:
  *                 type: string
- *                 format: email
+ *                 example: user@example.com
  *               password:
  *                 type: string
- *                 format: password
- *             example:
- *               email: fake@example.com
- *               password: password1
+ *                 example: password123
  *     responses:
- *       "200":
- *         description: OK
+ *       200:
+ *         description: Login successful
  *         content:
  *           application/json:
  *             schema:
@@ -108,15 +123,13 @@ module.exports = router;
  *                 user:
  *                   $ref: '#/components/schemas/User'
  *                 tokens:
- *                   $ref: '#/components/schemas/AuthTokens'
- *       "401":
+ *                   $ref: '#/components/schemas/Tokens'
+ *       400:
  *         description: Invalid email or password
- *         content:
- *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/Error'
- *             example:
- *               code: 401
- *               message: Invalid email or password
+ *       401:
+ *         description: Unauthorized (account locked or email not verified)
+ *       403:
+ *         description: Forbidden (User is not authorized)
+ *       404:
+ *         description: User not found
  */
-

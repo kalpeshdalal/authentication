@@ -1,17 +1,20 @@
-function sendResponse(res, status, data, err = null) {
-  if (err) {
-    res.status(status).json({
-      code:status,
-      status: status > 199 && status < 299 ?true:false,
-      data: err,
-    });
-  } else {
-    res.status(status).json({
-      code:status,
-      status: status > 199 && status < 299 ?true:false,
-      data,
-    });
-  }
-}
+const sendResponse = (
+	res,
+	statusCode,
+	data = null,
+	message = "Success",
+	error = false
+) => {
+	const response = {
+		message,
+		status: statusCode,
+		error,
+		data: data || undefined,
+	};
 
-module.exports.sendResponse = sendResponse;
+	return res.status(statusCode).json(response);
+};
+
+module.exports = {
+	sendResponse,
+};

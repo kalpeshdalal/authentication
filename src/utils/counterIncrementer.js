@@ -1,16 +1,19 @@
-const Counters = require("../modules/counters/counter.modal");
+const mongoose = require("mongoose");
 
-const counterIncrementor =  async (name) =>  {
-    try {
-        let counter = await Counters.findOneAndUpdate({name: name}, {$inc: { seq: 1}, name: name });
-        if(counter){
-            return counter.seq + 1;
-        } else {
-            Counters.create({seq: 1, name: name})
-            return 1;
-        }
-      } catch (error) {
-          return null
-      }
-}
-module.exports = counterIncrementor
+const counterSchema = new mongoose.Schema({
+	id: { type: String, required: true },
+	seq: { type: Number, default: 0 },
+});
+
+const Counter = mongoose.model("Counter", counterSchema);
+
+const incrementCounter = async (counterName) => {
+	const counter = await Counter.findOneAndUpdate(
+		{ id: counterName },
+		{ $inc: { seq: 1 } },
+		{ new: true, upsert: true }
+	);
+	return counter.seq;
+};
+
+module.exports = incrementCounter;
