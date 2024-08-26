@@ -13,6 +13,8 @@ router.post('/verify-otp', validate(authValidation.otpVerification), authControl
 
 router.post('/login', validate(authValidation.login), authController.login);
 
+router.post('/logout', validate(authValidation.logout), authController.logout);
+
 module.exports = router;
 
 
@@ -132,4 +134,41 @@ module.exports = router;
  *         description: Forbidden (User is not authorized)
  *       404:
  *         description: User not found
+ */
+
+
+/**
+ * @swagger
+ * /auth/logout:
+ *   post:
+ *     summary: Log out a user
+ *     description: Log out the authenticated user and invalidate their tokens.
+ *     tags: [Auth]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               refreshToken:
+ *                 type: string
+ *                 example: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...'
+ *     responses:
+ *       200:
+ *         description: Logout successful
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: Successfully logged out
+ *       400:
+ *         description: Bad request
+ *       401:
+ *         description: Unauthorized (Invalid or missing token)
+ *       404:
+ *         description: Token not found 
  */

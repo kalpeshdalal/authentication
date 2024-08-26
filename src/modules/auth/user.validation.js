@@ -53,9 +53,22 @@ const otpVerification = {
 	}),
 };
 
+const logout = {
+	body: Joi.object().keys({
+		refreshToken: Joi.string()
+			.pattern(/^[A-Za-z0-9-_]+\.[A-Za-z0-9-_]+\.[A-Za-z0-9-_]+$/)
+			.required()
+			.messages({
+				"string.pattern.base": "Invalid token format",
+				"any.required": "Refresh token is required",
+			}),
+	}),
+};
+  
 
 module.exports = {
 	signup,
 	login,
 	otpVerification,
+	logout
 };
