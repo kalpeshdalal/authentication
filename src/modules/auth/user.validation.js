@@ -64,11 +64,48 @@ const logout = {
 			}),
 	}),
 };
-  
+
+const resendOtp = {
+	body: Joi.object().keys({
+		email: Joi.string().required().email().messages({
+			"string.email": "Please provide a valid email address",
+			"any.required": "Email is required",
+		}),
+	}),
+};
+
+
+const forgetPassword = {
+	body: Joi.object().keys({
+		email: Joi.string().required().email().messages({
+			"string.email": "Please provide a valid email address",
+			"any.required": "Email is required",
+		}),
+	}),
+};
+
+const verifyForgetPasswordOtp = {
+	body: Joi.object().keys({
+		token: Joi.string()
+			.pattern(/^[A-Za-z0-9-_]+\.[A-Za-z0-9-_]+\.[A-Za-z0-9-_]+$/)
+			.required()
+			.messages({
+				"string.pattern.base": "Invalid token format",
+				"any.required": "Refresh token is required",
+		}),
+		otp: Joi.string().length(6).required().messages({
+            "string.length": "OTP must be exactly 6 characters long",
+            "any.required": "OTP is required",
+        }),
+	}),
+};
 
 module.exports = {
 	signup,
 	login,
 	otpVerification,
-	logout
+	logout,
+	resendOtp,
+	forgetPassword,
+	verifyForgetPasswordOtp
 };

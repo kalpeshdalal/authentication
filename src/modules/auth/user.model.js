@@ -19,6 +19,12 @@ const userSchema = new mongoose.Schema(
 			required: true,
 			trim: true,
 		},
+		passwordHistory: [
+			{
+				type: String,
+				trim: true,
+			},
+		],
 		name: {
 			type: String,
 			required: true,
@@ -32,17 +38,20 @@ const userSchema = new mongoose.Schema(
 		otp: {
 			code: String,
 			expires: Date,
-			requestCount: { 
+			requestCount: {
 				type: Number,
 				default: 0,
 			},
-			lastRequest: { 
+			lastRequest: {
 				type: Date,
 			},
-			ipAddress: String, 
-			userAgent: String, 
+			ipAddress: String,
+			userAgent: String,
+			otpType: {
+				type: String,
+				enum: ["signupEmailVerify", "forgetPassword", null],
+			},
 		},
-		
 		isEmailVerified: {
 			type: Boolean,
 			default: false,
@@ -54,10 +63,10 @@ const userSchema = new mongoose.Schema(
 		lockUntil: {
 			type: Date,
 		},
-        active:{
-            type: Boolean,
-			default: true,  
-        },
+		active: {
+			type: Boolean,
+			default: true,
+		},
 		seqId: {
 			type: Number,
 			unique: true,
@@ -116,7 +125,30 @@ userSchema.pre("save", async function (next) {
 		this.seqId = await incrementCounter("user");
 	}
 	if (this.isModified("password")) {
+		// Check if the new password matches any of the last 5 passwords
+		for (let i = 0; i < this.passwordHistory.length; i++) {
+			const isMatch = await bcrypt.compare(
+				this.password,
+				this.passwordHistory[i]
+			);
+			if (isMatch) {
+				const error = new Error(
+					"New password cannot be one of the last 5 passwords."
+				);
+				return next(error);
+			}
+		}
+
+		// Hash the new password
 		this.password = await bcrypt.hash(this.password, 8);
+
+		// Add the new hashed password to the history
+		this.passwordHistory.push(this.password);
+
+		// Keep only the last 5 passwords in the history
+		if (this.passwordHistory.length > 5) {
+			this.passwordHistory.shift();
+		}
 	}
 	next();
 });

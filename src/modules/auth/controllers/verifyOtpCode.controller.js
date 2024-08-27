@@ -4,10 +4,11 @@ const catchAsync = require("../../../utils/catchAsync");
 const services = require("../services");
 const { sendResponse } = require("../../../utils/responseHandler");
 const tokenServices = require("../../token/services");
+const pick = require("../../../utils/pick");
 
 
 const verifyOtpCode = catchAsync(async (req, res) => {
-	const { email, otp } = req.body;
+    const { email, otp } = pick(req.body, ['email', 'otp']);
 	const user = await services.verifyOtp(email, otp, req);
     if(!user.status){
         sendResponse( res, user.code, null, user.message, true);
