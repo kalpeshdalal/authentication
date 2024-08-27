@@ -4,6 +4,8 @@ function toJSON(schema) {
 
 		delete obj.__v;
 		delete obj.password;
+		delete obj.passwordHistory;
+		delete obj.otp;
 
 		return obj;
 	};

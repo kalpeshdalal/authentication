@@ -39,7 +39,6 @@ const registerUser = async (userBody, req) => {
 	user.otp.ipAddress = req.ip; 
     user.otp.userAgent = req.get('User-Agent'); 
 	user.otp.userAgent = req.get('User-Agent'); 
-	user.otp.signupEmailVerify = "signupEmailVerify"
 	await user.save();
 
     return { data: { email: user.email }, code: httpStatus.CREATED, status: true };

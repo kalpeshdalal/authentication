@@ -47,10 +47,6 @@ const userSchema = new mongoose.Schema(
 			},
 			ipAddress: String,
 			userAgent: String,
-			otpType: {
-				type: String,
-				enum: ["signupEmailVerify", "forgetPassword", null],
-			},
 		},
 		isEmailVerified: {
 			type: Boolean,
@@ -128,11 +124,11 @@ userSchema.pre("save", async function (next) {
 	if (this.isNew) {
 		this.seqId = await incrementCounter("user");
 	}
+
 	if (this.isModified("password")) {
-		// Check if the new password matches any of the last 5 passwords
 		for (let i = 0; i < this.passwordHistory.length; i++) {
 			const isMatch = await bcrypt.compare(
-				this.password,
+				this.password, // Compare the plain text password before hashing
 				this.passwordHistory[i]
 			);
 			if (isMatch) {
@@ -143,10 +139,9 @@ userSchema.pre("save", async function (next) {
 			}
 		}
 
-		// Hash the new password
 		this.password = await bcrypt.hash(this.password, 8);
 
-		// Add the new hashed password to the history
+		//  new hashed password to the history
 		this.passwordHistory.push(this.password);
 
 		// Keep only the last 5 passwords in the history
@@ -154,8 +149,12 @@ userSchema.pre("save", async function (next) {
 			this.passwordHistory.shift();
 		}
 	}
+
 	next();
 });
+
+
+
 
 const User = mongoose.model("User", userSchema);
 

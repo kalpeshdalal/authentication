@@ -26,9 +26,11 @@ const changePassword = async (token, newPassword) => {
             return { message: "OTP not verified", code: httpStatus.FORBIDDEN, status: false };
         }
 
-        user.password = await bcrypt.hash(newPassword, 8);
+        user.password = newPassword;
         user.isForgetPasswordOTPVerified = false; 
         await user.save();
+        
+        await tokenServices.removeToken(token)
 
         return { status: true };
     } catch (error) {
