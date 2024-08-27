@@ -6,7 +6,7 @@ const pick = require("../../../utils/pick");
 
 const signup = catchAsync(async (req, res) => {
     const body  = pick(req.body, ['email', 'password', 'name'])
-	const user = await services.registerUser(body);
+	const user = await services.registerUser(body, req);
     if(user.status){
         sendResponse( res, httpStatus.CREATED, user.data, "User registered successfully. OTP sent to your email.");
     }else{

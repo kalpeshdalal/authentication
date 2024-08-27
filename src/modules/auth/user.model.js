@@ -32,7 +32,17 @@ const userSchema = new mongoose.Schema(
 		otp: {
 			code: String,
 			expires: Date,
+			requestCount: { 
+				type: Number,
+				default: 0,
+			},
+			lastRequest: { 
+				type: Date,
+			},
+			ipAddress: String, 
+			userAgent: String, 
 		},
+		
 		isEmailVerified: {
 			type: Boolean,
 			default: false,

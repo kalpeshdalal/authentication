@@ -8,7 +8,7 @@ const tokenServices = require("../../token/services");
 
 const verifyOtpCode = catchAsync(async (req, res) => {
 	const { email, otp } = req.body;
-	const user = await services.verifyOtp(email, otp);
+	const user = await services.verifyOtp(email, otp, req);
     if(!user.status){
         sendResponse( res, user.code, null, user.message, true);
     }
