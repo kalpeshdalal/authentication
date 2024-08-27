@@ -10,8 +10,11 @@ const TOKEN_MODEL = require("../token.model");
  */
 const verifyToken = async (token, type) => {
 	const tokenDoc = await TOKEN_MODEL.findOne({ token, type, blacklisted: false });
-	if (!tokenDoc || tokenDoc.isExpired()) {
-		throw new Error("Token is invalid or has expired");
+	if (!tokenDoc ) {
+		throw new Error("Token is invalid, Please Try Again");
+	}
+	if (tokenDoc.isExpired()) {
+		throw new Error("Token is expired, Please Try Again");
 	}
 	return tokenDoc;
 };

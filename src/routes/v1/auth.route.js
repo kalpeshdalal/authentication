@@ -21,6 +21,8 @@ router.post('/forget-password', validate(authValidation.forgetPassword), authCon
 
 router.post('/verify-otp-forget-password', validate(authValidation.verifyForgetPasswordOtp), authController.verifyForgetPasswordOTP);
 
+router.post('/change-password', validate(authValidation.changePassword), authController.changePassword);
+
 module.exports = router;
 
 

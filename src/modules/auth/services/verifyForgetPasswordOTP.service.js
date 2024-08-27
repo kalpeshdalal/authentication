@@ -31,7 +31,7 @@ const verifyForgetPasswordOtp = async (token, otp, req) => {
         if (user.otp.ipAddress !== req.ip || user.otp.userAgent !== req.get('User-Agent')) {
             return { message: "OTP verification failed due to IP or device mismatch", code: httpStatus.UNAUTHORIZED, status: false };
         }
-
+        user.isForgetPasswordOTPVerified = true;
         user.otp = { code: null, expires: null, requestCount: 0, lastRequest: null, ipAddress: null, userAgent: null , otpType : null };
 
 		await user.save();

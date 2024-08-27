@@ -100,6 +100,23 @@ const verifyForgetPasswordOtp = {
 	}),
 };
 
+const changePassword = {
+	body: Joi.object().keys({
+		token: Joi.string()
+			.pattern(/^[A-Za-z0-9-_]+\.[A-Za-z0-9-_]+\.[A-Za-z0-9-_]+$/)
+			.required()
+			.messages({
+				"string.pattern.base": "Invalid token format",
+				"any.required": "Refresh token is required",
+		}),
+		newPassword: Joi.string().required().custom(password).messages({
+			"any.required": "Password is required",
+			"string.base": "Password must be a string",
+		}),
+	}),
+};
+
+
 module.exports = {
 	signup,
 	login,
@@ -107,5 +124,6 @@ module.exports = {
 	logout,
 	resendOtp,
 	forgetPassword,
-	verifyForgetPasswordOtp
+	verifyForgetPasswordOtp,
+	changePassword
 };
